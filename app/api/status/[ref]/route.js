@@ -1,6 +1,6 @@
 
 import { NextResponse } from "next/server";
-import { getStatus } from '../../../lib/mockDb.js';
+import { getStatus } from '../../../../lib/mockDb.js';
 
 export async function GET(_req, { params }) {
   const { ref } = params;
