@@ -1,0 +1,23 @@
+
+export const metadata = {
+  title: "Passport Services ",
+  description: "Apply, renew, and track passport status.",
+};
+
+import "./globals.css";
+import Header from "../components/Header";
+import NavBar from "../components/NavBar";
+import Footer from "../components/Footer";
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body className="min-h-screen flex flex-col">
+         <Header />
+        <NavBar />
+        <main className="flex-1 container py-8">{children}</main>
+        <Footer />
+      </body>
+    </html>
+  );
+}
