@@ -1,7 +1,7 @@
 
 "use client";
 import { useState } from "react";
-import StatusBadge from '../components/StatusBadge.jsx';
+import StatusBadge from '../components/StatusBadge';
 
 export default function Status() {
   const [ref, setRef] = useState("");
