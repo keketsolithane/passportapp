@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 
 export default function Renew() {
@@ -13,6 +13,7 @@ export default function Renew() {
   const [photoFile, setPhotoFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [ref, setRef] = useState(null);
+  const fileInputRef = useRef(null);
 
   const DISTRICTS = [
     "Maseru", "Berea", "Mafeteng", "Mohale's Hoek",
@@ -78,9 +79,9 @@ export default function Renew() {
       // Reset form
       setForm({ name: "", surname: "", passportNumber: "", district: "" });
       setPhotoFile(null);
-      // Reset file input
-      const fileInput = document.getElementById('photoFile');
-      if (fileInput) fileInput.value = '';
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
 
     } catch (err) {
       console.error("Error submitting renewal:", err);
@@ -98,11 +99,11 @@ export default function Renew() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name Field */}
         <div className="form-group">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="renew-name" className="block text-sm font-medium text-gray-700 mb-1">
             Name *
           </label>
           <input
-            id="name"
+            id="renew-name"
             name="name"
             type="text"
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -116,11 +117,11 @@ export default function Renew() {
 
         {/* Surname Field */}
         <div className="form-group">
-          <label htmlFor="surname" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="renew-surname" className="block text-sm font-medium text-gray-700 mb-1">
             Surname *
           </label>
           <input
-            id="surname"
+            id="renew-surname"
             name="surname"
             type="text"
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -134,11 +135,11 @@ export default function Renew() {
 
         {/* Passport Number Field */}
         <div className="form-group">
-          <label htmlFor="passportNumber" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="renew-passport" className="block text-sm font-medium text-gray-700 mb-1">
             Passport Number *
           </label>
           <input
-            id="passportNumber"
+            id="renew-passport"
             name="passportNumber"
             type="text"
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -152,11 +153,11 @@ export default function Renew() {
 
         {/* District Field */}
         <div className="form-group">
-          <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="renew-district" className="block text-sm font-medium text-gray-700 mb-1">
             District *
           </label>
           <select
-            id="district"
+            id="renew-district"
             name="district"
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             value={form.district}
@@ -173,11 +174,12 @@ export default function Renew() {
 
         {/* Photo Upload Field */}
         <div className="form-group">
-          <label htmlFor="photoFile" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="renew-photo" className="block text-sm font-medium text-gray-700 mb-1">
             Passport Photo *
           </label>
           <input
-            id="photoFile"
+            ref={fileInputRef}
+            id="renew-photo"
             name="photoFile"
             type="file"
             accept="image/*"
@@ -200,6 +202,7 @@ export default function Renew() {
         {/* Submit Button */}
         <button
           type="submit"
+          name="submit"
           disabled={submitting}
           className="w-full bg-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-800 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >

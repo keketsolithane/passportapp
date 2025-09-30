@@ -136,54 +136,56 @@ export default function Apply() {
 
   return (
     <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded-2xl shadow">
-      <h1 className="text-2xl font-semibold text-blue-700 mb-4">
+      <h1 className="text-2xl font-semibold text-blue-700 mb-6">
         Lesotho Passport Online Application
       </h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Full Name */}
         <div className="form-group">
-          <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-fullName" className="block text-sm font-medium text-gray-700 mb-2">
             Full Name *
           </label>
           <input 
-            id="fullName" 
+            id="apply-fullName" 
             name="fullName" 
             type="text" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.fullName} 
             onChange={handleChange} 
             required 
             aria-required="true"
+            placeholder="Enter your full name as shown on ID"
           />
         </div>
 
         {/* Email */}
         <div className="form-group">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-email" className="block text-sm font-medium text-gray-700 mb-2">
             Email Address *
           </label>
           <input 
-            id="email" 
+            id="apply-email" 
             name="email" 
             type="email" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.email} 
             onChange={handleChange} 
             required 
             aria-required="true"
+            placeholder="Enter your email address"
           />
         </div>
 
         {/* Date of Birth */}
         <div className="form-group">
-          <label htmlFor="dob" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-dob" className="block text-sm font-medium text-gray-700 mb-2">
             Date of Birth *
           </label>
           <input 
-            id="dob" 
+            id="apply-dob" 
             name="dob" 
             type="date" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.dob} 
             onChange={handleChange} 
             required 
@@ -193,70 +195,73 @@ export default function Apply() {
 
         {/* ID Number */}
         <div className="form-group">
-          <label htmlFor="idNumber" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-idNumber" className="block text-sm font-medium text-gray-700 mb-2">
             National ID Number *
           </label>
           <input 
-            id="idNumber" 
+            id="apply-idNumber" 
             name="idNumber" 
             type="text" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.idNumber} 
             onChange={handleChange} 
             required 
             aria-required="true"
+            placeholder="Enter your national ID number"
           />
         </div>
 
         {/* Nationality */}
         <div className="form-group">
-          <label htmlFor="nationality" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-nationality" className="block text-sm font-medium text-gray-700 mb-2">
             Nationality *
           </label>
           <input 
-            id="nationality" 
+            id="apply-nationality" 
             name="nationality" 
             type="text" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.nationality} 
             onChange={handleChange} 
             required 
             aria-required="true"
+            placeholder="Enter your nationality"
           />
         </div>
 
         {/* Birth Place */}
         <div className="form-group">
-          <label htmlFor="birthPlace" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-birthPlace" className="block text-sm font-medium text-gray-700 mb-2">
             Birth Place *
           </label>
           <input 
-            id="birthPlace" 
+            id="apply-birthPlace" 
             name="birthPlace" 
             type="text" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.birthPlace} 
             onChange={handleChange} 
             required 
             aria-required="true"
+            placeholder="Enter your place of birth"
           />
         </div>
 
         {/* District */}
         <div className="form-group">
-          <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-district" className="block text-sm font-medium text-gray-700 mb-2">
             District *
           </label>
           <select 
-            id="district" 
+            id="apply-district" 
             name="district" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.district} 
             onChange={handleChange} 
             required 
             aria-required="true"
           >
-            <option value="">Select District</option>
+            <option value="">Select your district</option>
             {DISTRICTS.map(district => (
               <option key={district} value={district}>{district}</option>
             ))}
@@ -265,30 +270,31 @@ export default function Apply() {
 
         {/* Head Chief */}
         <div className="form-group">
-          <label htmlFor="headChief" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-headChief" className="block text-sm font-medium text-gray-700 mb-2">
             Head Chief *
           </label>
           <input 
-            id="headChief" 
+            id="apply-headChief" 
             name="headChief" 
             type="text" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.headChief} 
             onChange={handleChange} 
             required 
             aria-required="true"
+            placeholder="Enter your head chief&apos;s name"
           />
         </div>
 
-        {/* Passport Type */}
+        {/* Passport Type - FIXED: Replaced curly quotes with straight quotes */}
         <div className="form-group">
-          <label htmlFor="passportType" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-passportType" className="block text-sm font-medium text-gray-700 mb-2">
             Passport Type
           </label>
           <select 
-            id="passportType" 
+            id="apply-passportType" 
             name="passportType" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.passportType} 
             onChange={handleChange}
           >
@@ -299,19 +305,19 @@ export default function Apply() {
 
         {/* Sex */}
         <div className="form-group">
-          <label htmlFor="sex" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-sex" className="block text-sm font-medium text-gray-700 mb-2">
             Sex *
           </label>
           <select 
-            id="sex" 
+            id="apply-sex" 
             name="sex" 
-            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
             value={form.sex} 
             onChange={handleChange} 
             required 
             aria-required="true"
           >
-            <option value="">Select Sex</option>
+            <option value="">Select your sex</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
@@ -321,34 +327,36 @@ export default function Apply() {
         {age < 16 && (
           <>
             <div className="form-group">
-              <label htmlFor="guardianName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="apply-guardianName" className="block text-sm font-medium text-gray-700 mb-2">
                 Guardian Name *
               </label>
               <input 
-                id="guardianName" 
+                id="apply-guardianName" 
                 name="guardianName" 
                 type="text" 
-                className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
                 value={form.guardianName} 
                 onChange={handleChange} 
                 required 
                 aria-required="true"
+                placeholder="Enter guardian&apos;s full name"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="guardianId" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="apply-guardianId" className="block text-sm font-medium text-gray-700 mb-2">
                 Guardian ID Number *
               </label>
               <input 
-                id="guardianId" 
+                id="apply-guardianId" 
                 name="guardianId" 
                 type="text" 
-                className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
                 value={form.guardianId} 
                 onChange={handleChange} 
                 required 
                 aria-required="true"
+                placeholder="Enter guardian&apos;s ID number"
               />
             </div>
           </>
@@ -357,6 +365,8 @@ export default function Apply() {
         {/* File Uploads */}
         <div className="form-group">
           <FileUpload 
+            id="apply-photo"
+            name="photoFile"
             label="Take or upload a passport photo" 
             onUploadComplete={setPhotoUrl} 
             required 
@@ -365,6 +375,8 @@ export default function Apply() {
 
         <div className="form-group">
           <FileUpload 
+            id="apply-documents"
+            name="documentsFile"
             label="Upload certified documents (e.g., Birth Certificate)" 
             onUploadComplete={setDocsUrl} 
             required 
@@ -373,28 +385,32 @@ export default function Apply() {
 
         {/* Signature */}
         <div className="form-group">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="apply-signature" className="block text-sm font-medium text-gray-700 mb-2">
             Draw Your Signature *
           </label>
-          <div className="signature-container border border-gray-300 p-4 rounded">
+          <div id="apply-signature" className="signature-container border border-gray-300 p-4 rounded-lg">
             <SignatureCanvas
               ref={sigCanvasRef}
               penColor="black"
               canvasProps={{ 
                 width: 300, 
                 height: 100, 
-                className: "border border-gray-300 bg-white",
-                "aria-label": "Signature canvas - draw your signature here"
+                className: "border border-gray-300 bg-white mx-auto",
+                "aria-label": "Signature canvas - draw your signature here",
+                "aria-describedby": "signature-help"
               }}
             />
-            <div className="flex space-x-2 mt-2">
+            <div className="flex space-x-2 mt-3">
               <button 
                 type="button" 
                 onClick={clearSignature} 
-                className="px-4 py-1 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 Clear Signature
               </button>
+            </div>
+            <div id="signature-help" className="text-xs text-gray-500 mt-2">
+              Draw your signature in the box above. Click &quot;Clear Signature&quot; to start over.
             </div>
           </div>
         </div>
@@ -402,17 +418,34 @@ export default function Apply() {
         {/* Submit Button */}
         <button 
           type="submit" 
+          name="submit"
           disabled={submitting} 
-          className="bg-blue-700 text-white px-4 py-2 rounded w-full hover:bg-blue-800 disabled:bg-blue-400 transition-colors"
+          className="w-full bg-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-800 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          {submitting ? "Submitting..." : "Submit Application"}
+          {submitting ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing Application...
+            </span>
+          ) : (
+            "Submit Application"
+          )}
         </button>
 
         {/* Reference Number */}
         {refNum && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
-            <p className="text-green-700 font-medium">
-              Application submitted successfully! Reference Number: <strong>{refNum}</strong>
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-green-700 font-medium text-center">
+              ✅ Application submitted successfully!
+            </p>
+            <p className="text-green-600 text-sm text-center mt-2">
+              Reference Number: <strong className="font-mono text-lg">{refNum}</strong>
+            </p>
+            <p className="text-green-600 text-xs text-center mt-2">
+              Please save this reference number for tracking your application.
             </p>
           </div>
         )}
