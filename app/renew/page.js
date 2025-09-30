@@ -1,50 +1,59 @@
 "use client";
+
 import { useState } from "react";
-import { supabase } from "../../lib/supabase"; 
+import { supabase } from "../../lib/supabase";
 
 export default function Renew() {
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
-  const [passportNumber, setPassportNumber] = useState("");
-  const [district, setDistrict] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    surname: "",
+    passportNumber: "",
+    district: "",
+  });
   const [photoFile, setPhotoFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [ref, setRef] = useState(null);
 
   const DISTRICTS = [
-    "Maseru", "Berea", "Mafeteng", "Mohale's Hoek",
-    "Quthing", "Leribe", "Qacha's Neck", "Botha-Bothe", "Mokhotlong"
+    "Maseru","Berea","Mafeteng","Mohale's Hoek",
+    "Quthing","Leribe","Qacha's Neck","Botha-Bothe","Mokhotlong"
   ];
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setPhotoFile(e.target.files[0]);
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     if (!photoFile) {
       alert("Please upload a passport photo.");
       return;
     }
 
     setSubmitting(true);
+
     try {
       const bucketName = "passport-files";
       const fileExt = photoFile.name.split(".").pop();
-      const fileName = `passport_${passportNumber}.${fileExt}`;
+      const fileName = `passport_${form.passportNumber}.${fileExt}`;
 
-      // Upload photo
+      // Upload photo to Supabase
       const { error: uploadError } = await supabase
         .storage
         .from(bucketName)
-        .upload(fileName, photoFile, {
-          cacheControl: "3600",
-          upsert: true,
-        });
+        .upload(fileName, photoFile, { cacheControl: "3600", upsert: true });
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: urlData, error: urlError } = supabase
+      // Get public URL or signed URL
+      const { data: urlData } = supabase
         .storage
         .from(bucketName)
         .getPublicUrl(fileName);
-      if (urlError) throw urlError;
 
       const publicURL = urlData.publicUrl;
       if (!publicURL) throw new Error("Failed to get public URL of uploaded file");
@@ -53,10 +62,10 @@ export default function Renew() {
       const { data, error } = await supabase
         .from("renewals")
         .insert([{
-          name,
-          surname,
-          passport_number: passportNumber,
-          district,
+          name: form.name,
+          surname: form.surname,
+          passport_number: form.passportNumber,
+          district: form.district,
           photo_url: publicURL
         }])
         .select()
@@ -67,14 +76,11 @@ export default function Renew() {
       alert("Renewal submitted successfully!");
 
       // Reset form
-      setName(""); 
-      setSurname(""); 
-      setPassportNumber(""); 
-      setDistrict(""); 
+      setForm({ name: "", surname: "", passportNumber: "", district: "" });
       setPhotoFile(null);
 
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Error submitting renewal:", err);
       alert("Failed to submit renewal: " + err.message);
     } finally {
       setSubmitting(false);
@@ -82,91 +88,77 @@ export default function Renew() {
   }
 
   return (
-    <div className="rounded-2xl p-6 bg-white shadow">
-      <h1 className="text-2xl font-semibold">Renew Passport</h1>
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        
-        <div>
-          <label htmlFor="name" className="block mb-1 font-medium">Name</label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            className="w-full border p-2 rounded"
-            placeholder="Name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            required
-          />
-        </div>
+    <div className="rounded-2xl p-6 bg-white shadow max-w-md mx-auto mt-8">
+      <h1 className="text-2xl font-semibold mb-4">Renew Passport</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <label htmlFor="name">Name</label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          className="w-full border p-2 rounded"
+          value={form.name}
+          onChange={handleChange}
+          required
+        />
 
-        <div>
-          <label htmlFor="surname" className="block mb-1 font-medium">Surname</label>
-          <input
-            id="surname"
-            name="surname"
-            type="text"
-            className="w-full border p-2 rounded"
-            placeholder="Surname"
-            value={surname}
-            onChange={e => setSurname(e.target.value)}
-            required
-          />
-        </div>
+        <label htmlFor="surname">Surname</label>
+        <input
+          id="surname"
+          name="surname"
+          type="text"
+          className="w-full border p-2 rounded"
+          value={form.surname}
+          onChange={handleChange}
+          required
+        />
 
-        <div>
-          <label htmlFor="passportNumber" className="block mb-1 font-medium">Passport Number</label>
-          <input
-            id="passportNumber"
-            name="passportNumber"
-            type="text"
-            className="w-full border p-2 rounded"
-            placeholder="Passport Number"
-            value={passportNumber}
-            onChange={e => setPassportNumber(e.target.value)}
-            required
-          />
-        </div>
+        <label htmlFor="passportNumber">Passport Number</label>
+        <input
+          id="passportNumber"
+          name="passportNumber"
+          type="text"
+          className="w-full border p-2 rounded"
+          value={form.passportNumber}
+          onChange={handleChange}
+          required
+        />
 
-        <div>
-          <label htmlFor="district" className="block mb-1 font-medium">District</label>
-          <select
-            id="district"
-            name="district"
-            className="w-full border p-2 rounded"
-            value={district}
-            onChange={e => setDistrict(e.target.value)}
-            required
-          >
-            <option value="">Select District</option>
-            {DISTRICTS.map(d => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-        </div>
+        <label htmlFor="district">District</label>
+        <select
+          id="district"
+          name="district"
+          className="w-full border p-2 rounded"
+          value={form.district}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Select District</option>
+          {DISTRICTS.map((d) => (
+            <option key={d} value={d}>{d}</option>
+          ))}
+        </select>
 
-        <div>
-          <label htmlFor="photo" className="block mb-1 font-medium">Passport Photo</label>
-          <input
-            id="photo"
-            name="photo"
-            type="file"
-            accept="image/*"
-            onChange={e => setPhotoFile(e.target.files[0])}
-            className="border p-2 rounded w-full"
-            required
-          />
-        </div>
+        <label htmlFor="photoFile">Passport Photo</label>
+        <input
+          id="photoFile"
+          name="photoFile"
+          type="file"
+          accept="image/*"
+          className="w-full border p-2 rounded"
+          onChange={handleFileChange}
+          required
+        />
 
         <button
           type="submit"
           disabled={submitting}
-          className="bg-[var(--brand)] text-white px-4 py-2 rounded w-full"
+          className="bg-blue-700 text-white px-4 py-2 rounded w-full"
         >
           {submitting ? "Submitting..." : "Submit Renewal"}
         </button>
 
-        {ref && <p className="mt-2 text-sm text-green-700">Submitted! Reference ID: {ref}</p>}
+        {ref && <p className="mt-2 text-green-700 text-sm">Submitted! Reference ID: {ref}</p>}
       </form>
     </div>
   );
