@@ -6,8 +6,8 @@ import FileUpload from "../../components/FileUpload";
 import SignatureCanvas from "react-signature-canvas";
 
 const DISTRICTS = [
-  "Maseru","Berea","Mafeteng","Mohale'shoek","Quthing",
-  "Leribe","Qacha'sneck","Botha-Bothe","Mokhotlong","Thaba-Tseka",
+  "Maseru", "Berea", "Mafeteng", "Mohale'shoek", "Quthing",
+  "Leribe", "Qacha'sneck", "Botha-Bothe", "Mokhotlong", "Thaba-Tseka",
 ];
 
 export default function Apply() {
@@ -68,7 +68,7 @@ export default function Apply() {
     const signatureUrl = await uploadSignature();
 
     // Validate required fields
-    const requiredFields = ["fullName","email","dob","idNumber","nationality","birthPlace","district","headChief","sex"];
+    const requiredFields = ["fullName", "email", "dob", "idNumber", "nationality", "birthPlace", "district", "headChief", "sex"];
     for (let field of requiredFields) {
       if (!form[field]) {
         alert("Please fill all required fields.");
@@ -122,7 +122,8 @@ export default function Apply() {
         fullName: "", email: "", dob: "", idNumber: "", nationality: "", birthPlace: "",
         district: "", headChief: "", passportType: "32 pages", sex: "", guardianName: "", guardianId: ""
       });
-      setPhotoUrl(""); setDocsUrl(""); sigCanvasRef.current.clear();
+      setPhotoUrl(""); setDocsUrl(""); 
+      if (sigCanvasRef.current) sigCanvasRef.current.clear();
     } catch (err) {
       console.error("Error submitting application:", err.message);
       alert("Failed to submit application.");
@@ -131,82 +132,290 @@ export default function Apply() {
     }
   }
 
+  const age = form.dob ? new Date().getFullYear() - new Date(form.dob).getFullYear() : 0;
+
   return (
     <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded-2xl shadow">
       <h1 className="text-2xl font-semibold text-blue-700 mb-4">
         Lesotho Passport Online Application
       </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <label htmlFor="fullName">Full Name</label>
-        <input id="fullName" name="fullName" type="text" className="w-full border p-2 rounded" value={form.fullName} onChange={handleChange} required />
+        {/* Full Name */}
+        <div className="form-group">
+          <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+            Full Name *
+          </label>
+          <input 
+            id="fullName" 
+            name="fullName" 
+            type="text" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.fullName} 
+            onChange={handleChange} 
+            required 
+            aria-required="true"
+          />
+        </div>
 
-        <label htmlFor="email">Email Address</label>
-        <input id="email" name="email" type="email" className="w-full border p-2 rounded" value={form.email} onChange={handleChange} required />
+        {/* Email */}
+        <div className="form-group">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            Email Address *
+          </label>
+          <input 
+            id="email" 
+            name="email" 
+            type="email" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.email} 
+            onChange={handleChange} 
+            required 
+            aria-required="true"
+          />
+        </div>
 
-        <label htmlFor="dob">Date of Birth</label>
-        <input id="dob" name="dob" type="date" className="w-full border p-2 rounded" value={form.dob} onChange={handleChange} required />
+        {/* Date of Birth */}
+        <div className="form-group">
+          <label htmlFor="dob" className="block text-sm font-medium text-gray-700 mb-1">
+            Date of Birth *
+          </label>
+          <input 
+            id="dob" 
+            name="dob" 
+            type="date" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.dob} 
+            onChange={handleChange} 
+            required 
+            aria-required="true"
+          />
+        </div>
 
-        <label htmlFor="idNumber">National ID Number</label>
-        <input id="idNumber" name="idNumber" type="text" className="w-full border p-2 rounded" value={form.idNumber} onChange={handleChange} required />
+        {/* ID Number */}
+        <div className="form-group">
+          <label htmlFor="idNumber" className="block text-sm font-medium text-gray-700 mb-1">
+            National ID Number *
+          </label>
+          <input 
+            id="idNumber" 
+            name="idNumber" 
+            type="text" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.idNumber} 
+            onChange={handleChange} 
+            required 
+            aria-required="true"
+          />
+        </div>
 
-        <label htmlFor="nationality">Nationality</label>
-        <input id="nationality" name="nationality" type="text" className="w-full border p-2 rounded" value={form.nationality} onChange={handleChange} required />
+        {/* Nationality */}
+        <div className="form-group">
+          <label htmlFor="nationality" className="block text-sm font-medium text-gray-700 mb-1">
+            Nationality *
+          </label>
+          <input 
+            id="nationality" 
+            name="nationality" 
+            type="text" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.nationality} 
+            onChange={handleChange} 
+            required 
+            aria-required="true"
+          />
+        </div>
 
-        <label htmlFor="birthPlace">Birth Place</label>
-        <input id="birthPlace" name="birthPlace" type="text" className="w-full border p-2 rounded" value={form.birthPlace} onChange={handleChange} required />
+        {/* Birth Place */}
+        <div className="form-group">
+          <label htmlFor="birthPlace" className="block text-sm font-medium text-gray-700 mb-1">
+            Birth Place *
+          </label>
+          <input 
+            id="birthPlace" 
+            name="birthPlace" 
+            type="text" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.birthPlace} 
+            onChange={handleChange} 
+            required 
+            aria-required="true"
+          />
+        </div>
 
-        <label htmlFor="district">District</label>
-        <select id="district" name="district" className="w-full border p-2 rounded" value={form.district} onChange={handleChange} required>
-          <option value="">Select District</option>
-          {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
-        </select>
+        {/* District */}
+        <div className="form-group">
+          <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">
+            District *
+          </label>
+          <select 
+            id="district" 
+            name="district" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.district} 
+            onChange={handleChange} 
+            required 
+            aria-required="true"
+          >
+            <option value="">Select District</option>
+            {DISTRICTS.map(district => (
+              <option key={district} value={district}>{district}</option>
+            ))}
+          </select>
+        </div>
 
-        <label htmlFor="headChief">Head Chief</label>
-        <input id="headChief" name="headChief" type="text" className="w-full border p-2 rounded" value={form.headChief} onChange={handleChange} required />
+        {/* Head Chief */}
+        <div className="form-group">
+          <label htmlFor="headChief" className="block text-sm font-medium text-gray-700 mb-1">
+            Head Chief *
+          </label>
+          <input 
+            id="headChief" 
+            name="headChief" 
+            type="text" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.headChief} 
+            onChange={handleChange} 
+            required 
+            aria-required="true"
+          />
+        </div>
 
-        <label htmlFor="passportType">Passport Type</label>
-        <select id="passportType" name="passportType" className="w-full border p-2 rounded" value={form.passportType} onChange={handleChange}>
-          <option value="32 pages">Regular Passport – 32 pages (M130.00)</option>
-          <option value="64 pages">Regular Passport – 64 pages (M300.00)</option>
-        </select>
+        {/* Passport Type */}
+        <div className="form-group">
+          <label htmlFor="passportType" className="block text-sm font-medium text-gray-700 mb-1">
+            Passport Type
+          </label>
+          <select 
+            id="passportType" 
+            name="passportType" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.passportType} 
+            onChange={handleChange}
+          >
+            <option value="32 pages">Regular Passport – 32 pages (M130.00)</option>
+            <option value="64 pages">Regular Passport – 64 pages (M300.00)</option>
+          </select>
+        </div>
 
-        <label htmlFor="sex">Sex</label>
-        <select id="sex" name="sex" className="w-full border p-2 rounded" value={form.sex} onChange={handleChange} required>
-          <option value="">Select Sex</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-        </select>
+        {/* Sex */}
+        <div className="form-group">
+          <label htmlFor="sex" className="block text-sm font-medium text-gray-700 mb-1">
+            Sex *
+          </label>
+          <select 
+            id="sex" 
+            name="sex" 
+            className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            value={form.sex} 
+            onChange={handleChange} 
+            required 
+            aria-required="true"
+          >
+            <option value="">Select Sex</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
 
-        {form.dob && new Date().getFullYear() - new Date(form.dob).getFullYear() < 16 && (
+        {/* Conditional Guardian Fields */}
+        {age < 16 && (
           <>
-            <label htmlFor="guardianName">Guardian Name</label>
-            <input id="guardianName" name="guardianName" type="text" className="w-full border p-2 rounded" value={form.guardianName} onChange={handleChange} required />
+            <div className="form-group">
+              <label htmlFor="guardianName" className="block text-sm font-medium text-gray-700 mb-1">
+                Guardian Name *
+              </label>
+              <input 
+                id="guardianName" 
+                name="guardianName" 
+                type="text" 
+                className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                value={form.guardianName} 
+                onChange={handleChange} 
+                required 
+                aria-required="true"
+              />
+            </div>
 
-            <label htmlFor="guardianId">Guardian ID Number</label>
-            <input id="guardianId" name="guardianId" type="text" className="w-full border p-2 rounded" value={form.guardianId} onChange={handleChange} required />
+            <div className="form-group">
+              <label htmlFor="guardianId" className="block text-sm font-medium text-gray-700 mb-1">
+                Guardian ID Number *
+              </label>
+              <input 
+                id="guardianId" 
+                name="guardianId" 
+                type="text" 
+                className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                value={form.guardianId} 
+                onChange={handleChange} 
+                required 
+                aria-required="true"
+              />
+            </div>
           </>
         )}
 
-        <FileUpload label="Take or upload a passport photo" onUploadComplete={setPhotoUrl} />
-        <FileUpload label="Upload certified documents (e.g., Birth Certificate)" onUploadComplete={setDocsUrl} />
-
-        <div className="signature-container border p-2 rounded">
-          <label>Draw Your Signature</label>
-          <SignatureCanvas
-            ref={sigCanvasRef}
-            penColor="black"
-            canvasProps={{ width: 300, height: 100, className: "border" }}
+        {/* File Uploads */}
+        <div className="form-group">
+          <FileUpload 
+            label="Take or upload a passport photo" 
+            onUploadComplete={setPhotoUrl} 
+            required 
           />
-          <div className="flex space-x-2 mt-2">
-            <button type="button" onClick={clearSignature} className="px-4 py-1 bg-gray-300 rounded">Clear</button>
+        </div>
+
+        <div className="form-group">
+          <FileUpload 
+            label="Upload certified documents (e.g., Birth Certificate)" 
+            onUploadComplete={setDocsUrl} 
+            required 
+          />
+        </div>
+
+        {/* Signature */}
+        <div className="form-group">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Draw Your Signature *
+          </label>
+          <div className="signature-container border border-gray-300 p-4 rounded">
+            <SignatureCanvas
+              ref={sigCanvasRef}
+              penColor="black"
+              canvasProps={{ 
+                width: 300, 
+                height: 100, 
+                className: "border border-gray-300 bg-white",
+                "aria-label": "Signature canvas - draw your signature here"
+              }}
+            />
+            <div className="flex space-x-2 mt-2">
+              <button 
+                type="button" 
+                onClick={clearSignature} 
+                className="px-4 py-1 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+              >
+                Clear Signature
+              </button>
+            </div>
           </div>
         </div>
 
-        <button type="submit" disabled={submitting} className="bg-blue-700 text-white px-4 py-2 rounded w-full">
+        {/* Submit Button */}
+        <button 
+          type="submit" 
+          disabled={submitting} 
+          className="bg-blue-700 text-white px-4 py-2 rounded w-full hover:bg-blue-800 disabled:bg-blue-400 transition-colors"
+        >
           {submitting ? "Submitting..." : "Submit Application"}
         </button>
 
-        {refNum && <p className="mt-2 text-sm text-green-700">Application submitted! Ref: {refNum}</p>}
+        {/* Reference Number */}
+        {refNum && (
+          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+            <p className="text-green-700 font-medium">
+              Application submitted successfully! Reference Number: <strong>{refNum}</strong>
+            </p>
+          </div>
+        )}
       </form>
     </div>
   );
