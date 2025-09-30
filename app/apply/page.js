@@ -31,53 +31,79 @@ export default function Apply() {
   const [submitting, setSubmitting] = useState(false);
   const [refNum, setRefNum] = useState("");
   const sigCanvasRef = useRef(null);
+  const formRef = useRef(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const clearSignature = () => sigCanvasRef.current?.clear();
+  const clearSignature = () => {
+    if (sigCanvasRef.current) {
+      sigCanvasRef.current.clear();
+    }
+  };
 
   const uploadSignature = async () => {
-    if (!sigCanvasRef.current || sigCanvasRef.current.isEmpty()) return null;
-    const dataURL = sigCanvasRef.current.toDataURL("image/png");
-    const blob = await (await fetch(dataURL)).blob();
-    const fileName = `signature_${form.idNumber || "user"}.png`;
-
-    const { error: uploadError } = await supabase
-      .storage
-      .from("passport-files")
-      .upload(fileName, blob, { cacheControl: "3600", upsert: true });
-
-    if (uploadError) {
-      console.error("Signature upload failed:", uploadError.message);
+    if (!sigCanvasRef.current || sigCanvasRef.current.isEmpty()) {
+      alert("Please provide your signature");
       return null;
     }
+    
+    try {
+      const dataURL = sigCanvasRef.current.toDataURL("image/png");
+      const blob = await (await fetch(dataURL)).blob();
+      const fileName = `signature_${form.idNumber || Date.now()}.png`;
 
-    const { data } = supabase
-      .storage
-      .from("passport-files")
-      .getPublicUrl(fileName);
+      const { error: uploadError } = await supabase.storage
+        .from("passport-files")
+        .upload(fileName, blob, { 
+          cacheControl: "3600", 
+          upsert: true,
+          contentType: "image/png"
+        });
 
-    return data.publicUrl;
+      if (uploadError) {
+        console.error("Signature upload failed:", uploadError.message);
+        alert("Failed to upload signature. Please try again.");
+        return null;
+      }
+
+      const { data } = supabase.storage
+        .from("passport-files")
+        .getPublicUrl(fileName);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error("Signature upload error:", error);
+      return null;
+    }
   };
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const signatureUrl = await uploadSignature();
-
     // Validate required fields
     const requiredFields = ["fullName", "email", "dob", "idNumber", "nationality", "birthPlace", "district", "headChief", "sex"];
     for (let field of requiredFields) {
       if (!form[field]) {
-        alert("Please fill all required fields.");
+        alert(`Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
         return;
       }
     }
-    if (!photoUrl || !docsUrl || !signatureUrl) {
-      alert("Please upload photo, documents, and signature.");
+
+    if (!photoUrl) {
+      alert("Please upload a passport photo.");
       return;
+    }
+
+    if (!docsUrl) {
+      alert("Please upload required documents.");
+      return;
+    }
+
+    const signatureUrl = await uploadSignature();
+    if (!signatureUrl) {
+      return; // uploadSignature already shows alert
     }
 
     const birthDate = new Date(form.dob);
@@ -118,15 +144,23 @@ export default function Apply() {
       setRefNum(`LS-${data[0].id}`);
       alert("Application submitted successfully!");
 
+      // Reset form
       setForm({
         fullName: "", email: "", dob: "", idNumber: "", nationality: "", birthPlace: "",
         district: "", headChief: "", passportType: "32 pages", sex: "", guardianName: "", guardianId: ""
       });
-      setPhotoUrl(""); setDocsUrl(""); 
+      setPhotoUrl(""); 
+      setDocsUrl(""); 
       if (sigCanvasRef.current) sigCanvasRef.current.clear();
+      
+      // Reset file inputs
+      if (formRef.current) {
+        const fileInputs = formRef.current.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => input.value = '');
+      }
     } catch (err) {
       console.error("Error submitting application:", err.message);
-      alert("Failed to submit application.");
+      alert("Failed to submit application. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -139,7 +173,7 @@ export default function Apply() {
       <h1 className="text-2xl font-semibold text-blue-700 mb-6">
         Lesotho Passport Online Application
       </h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-6" noValidate>
         {/* Full Name */}
         <div className="form-group">
           <label htmlFor="apply-fullName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -286,7 +320,7 @@ export default function Apply() {
           />
         </div>
 
-        {/* Passport Type - FIXED: Replaced curly quotes with straight quotes */}
+        {/* Passport Type */}
         <div className="form-group">
           <label htmlFor="apply-passportType" className="block text-sm font-medium text-gray-700 mb-2">
             Passport Type
@@ -363,41 +397,39 @@ export default function Apply() {
         )}
 
         {/* File Uploads */}
-        <div className="form-group">
-          <FileUpload 
-            id="apply-photo"
-            name="photoFile"
-            label="Take or upload a passport photo" 
-            onUploadComplete={setPhotoUrl} 
-            required 
-          />
-        </div>
+        <FileUpload 
+          id="apply-photo"
+          name="photoFile"
+          label="Take or upload a passport photo" 
+          onUploadComplete={setPhotoUrl} 
+          required={true}
+        />
 
-        <div className="form-group">
-          <FileUpload 
-            id="apply-documents"
-            name="documentsFile"
-            label="Upload certified documents (e.g., Birth Certificate)" 
-            onUploadComplete={setDocsUrl} 
-            required 
-          />
-        </div>
+        <FileUpload 
+          id="apply-documents"
+          name="documentsFile"
+          label="Upload certified documents (e.g., Birth Certificate)" 
+          onUploadComplete={setDocsUrl} 
+          required={true}
+        />
 
-        {/* Signature */}
+        {/* Signature - Improved Accessibility */}
         <div className="form-group">
-          <label htmlFor="apply-signature" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="signature-canvas" className="block text-sm font-medium text-gray-700 mb-2">
             Draw Your Signature *
           </label>
-          <div id="apply-signature" className="signature-container border border-gray-300 p-4 rounded-lg">
+          <div className="signature-container border border-gray-300 p-4 rounded-lg">
             <SignatureCanvas
               ref={sigCanvasRef}
               penColor="black"
               canvasProps={{ 
+                id: "signature-canvas",
                 width: 300, 
                 height: 100, 
                 className: "border border-gray-300 bg-white mx-auto",
-                "aria-label": "Signature canvas - draw your signature here",
-                "aria-describedby": "signature-help"
+                "aria-label": "Signature area - draw your signature using your mouse or touch screen",
+                "aria-required": "true",
+                role: "application"
               }}
             />
             <div className="flex space-x-2 mt-3">
@@ -405,11 +437,12 @@ export default function Apply() {
                 type="button" 
                 onClick={clearSignature} 
                 className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label="Clear signature"
               >
                 Clear Signature
               </button>
             </div>
-            <div id="signature-help" className="text-xs text-gray-500 mt-2">
+            <div className="text-xs text-gray-500 mt-2">
               Draw your signature in the box above. Click &quot;Clear Signature&quot; to start over.
             </div>
           </div>
