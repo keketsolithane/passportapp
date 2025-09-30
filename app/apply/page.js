@@ -47,7 +47,6 @@ export default function Apply() {
     const blob = await (await fetch(dataURL)).blob();
     const fileName = `signature_${form.idNumber || "user"}.png`;
 
-    // Upload to Supabase storage
     const { error: uploadError } = await supabase
       .storage
       .from("passport-files")
@@ -58,23 +57,20 @@ export default function Apply() {
       return null;
     }
 
-    // Get public URL
     const { data } = supabase
       .storage
       .from("passport-files")
       .getPublicUrl(fileName);
 
-    return data.publicUrl; // Always available
+    return data.publicUrl;
   };
 
   async function handleSubmit(e) {
     e.preventDefault();
     const { fullName, email, dob, idNumber, nationality, birthPlace, district, headChief, passportType, sex, guardianName, guardianId } = form;
 
-    // Upload signature if drawn
     const signatureUrl = await uploadSignature();
 
-    // Validate all required fields
     if (!fullName || !email || !dob || !idNumber || !nationality || !birthPlace || !district || !headChief || !sex || !photoUrl || !docsUrl || !signatureUrl) {
       alert("Please fill all required fields and upload/provide files.");
       return;
@@ -119,7 +115,6 @@ export default function Apply() {
       setRefNum(`LS-${data[0].id}`);
       alert("Application submitted successfully!");
 
-      // Reset form
       setForm({
         fullName: "",
         email: "",
@@ -150,41 +145,72 @@ export default function Apply() {
       <h1 className="text-2xl font-semibold text-blue-700 mb-4">
         Lesotho Passport Online Application
       </h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input name="fullName" type="text" className="w-full border p-2 rounded" placeholder="Full Name" value={form.fullName} onChange={handleChange} required />
-        <input name="email" type="email" className="w-full border p-2 rounded" placeholder="Email Address" value={form.email} onChange={handleChange} required />
-        <input name="dob" type="date" className="w-full border p-2 rounded" value={form.dob} onChange={handleChange} required />
-        <input name="idNumber" type="text" className="w-full border p-2 rounded" placeholder="National ID Number" value={form.idNumber} onChange={handleChange} required />
-        <input name="nationality" type="text" className="w-full border p-2 rounded" placeholder="Nationality" value={form.nationality} onChange={handleChange} required />
-        <input name="birthPlace" type="text" className="w-full border p-2 rounded" placeholder="Birth Place" value={form.birthPlace} onChange={handleChange} required />
 
-        <select name="district" className="w-full border p-2 rounded" value={form.district} onChange={handleChange} required>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Full Name */}
+        <label htmlFor="fullName" className="block font-medium">Full Name</label>
+        <input id="fullName" name="fullName" type="text" className="w-full border p-2 rounded" value={form.fullName} onChange={handleChange} required />
+
+        {/* Email */}
+        <label htmlFor="email" className="block font-medium">Email Address</label>
+        <input id="email" name="email" type="email" className="w-full border p-2 rounded" value={form.email} onChange={handleChange} required />
+
+        {/* DOB */}
+        <label htmlFor="dob" className="block font-medium">Date of Birth</label>
+        <input id="dob" name="dob" type="date" className="w-full border p-2 rounded" value={form.dob} onChange={handleChange} required />
+
+        {/* ID Number */}
+        <label htmlFor="idNumber" className="block font-medium">National ID Number</label>
+        <input id="idNumber" name="idNumber" type="text" className="w-full border p-2 rounded" value={form.idNumber} onChange={handleChange} required />
+
+        {/* Nationality */}
+        <label htmlFor="nationality" className="block font-medium">Nationality</label>
+        <input id="nationality" name="nationality" type="text" className="w-full border p-2 rounded" value={form.nationality} onChange={handleChange} required />
+
+        {/* Birth Place */}
+        <label htmlFor="birthPlace" className="block font-medium">Birth Place</label>
+        <input id="birthPlace" name="birthPlace" type="text" className="w-full border p-2 rounded" value={form.birthPlace} onChange={handleChange} required />
+
+        {/* District */}
+        <label htmlFor="district" className="block font-medium">District</label>
+        <select id="district" name="district" className="w-full border p-2 rounded" value={form.district} onChange={handleChange} required>
           <option value="">Select District</option>
           {DISTRICTS.map((d) => (
             <option key={d} value={d}>{d}</option>
           ))}
         </select>
 
-        <input name="headChief" type="text" className="w-full border p-2 rounded" placeholder="Head Chief" value={form.headChief} onChange={handleChange} required />
+        {/* Head Chief */}
+        <label htmlFor="headChief" className="block font-medium">Head Chief</label>
+        <input id="headChief" name="headChief" type="text" className="w-full border p-2 rounded" value={form.headChief} onChange={handleChange} required />
 
-        <select name="passportType" className="w-full border p-2 rounded" value={form.passportType} onChange={handleChange}>
+        {/* Passport Type */}
+        <label htmlFor="passportType" className="block font-medium">Passport Type</label>
+        <select id="passportType" name="passportType" className="w-full border p-2 rounded" value={form.passportType} onChange={handleChange}>
           <option value="32 pages">Regular Passport – 32 pages (M130.00)</option>
           <option value="64 pages">Regular Passport – 64 pages (M300.00)</option>
         </select>
 
-        <select name="sex" className="w-full border p-2 rounded" value={form.sex} onChange={handleChange} required>
+        {/* Sex */}
+        <label htmlFor="sex" className="block font-medium">Sex</label>
+        <select id="sex" name="sex" className="w-full border p-2 rounded" value={form.sex} onChange={handleChange} required>
           <option value="">Select Sex</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
         </select>
 
+        {/* Guardian fields (for minors) */}
         {form.dob && new Date().getFullYear() - new Date(form.dob).getFullYear() < 16 && (
           <>
-            <input name="guardianName" type="text" className="w-full border p-2 rounded" placeholder="Guardian Name" value={form.guardianName} onChange={handleChange} required />
-            <input name="guardianId" type="text" className="w-full border p-2 rounded" placeholder="Guardian ID Number" value={form.guardianId} onChange={handleChange} required />
+            <label htmlFor="guardianName" className="block font-medium">Guardian Name</label>
+            <input id="guardianName" name="guardianName" type="text" className="w-full border p-2 rounded" value={form.guardianName} onChange={handleChange} required />
+
+            <label htmlFor="guardianId" className="block font-medium">Guardian ID Number</label>
+            <input id="guardianId" name="guardianId" type="text" className="w-full border p-2 rounded" value={form.guardianId} onChange={handleChange} required />
           </>
         )}
 
+        {/* File uploads */}
         <FileUpload label="Take or upload a passport photo" onUploadComplete={(url) => setPhotoUrl(url)} />
         <FileUpload label="Upload certified documents (e.g., Birth Certificate)" onUploadComplete={(url) => setDocsUrl(url)} />
 
@@ -194,13 +220,14 @@ export default function Apply() {
           <SignatureCanvas
             ref={sigCanvasRef}
             penColor="black"
-            canvasProps={{width: 300, height: 100, className: "border"}}
+            canvasProps={{ width: 300, height: 100, className: "border" }}
           />
           <div className="flex space-x-2 mt-2">
             <button type="button" onClick={clearSignature} className="px-4 py-1 bg-gray-300 rounded">Clear</button>
           </div>
         </div>
 
+        {/* Submit */}
         <button type="submit" disabled={submitting} className="bg-blue-700 text-white px-4 py-2 rounded w-full">
           {submitting ? "Submitting..." : "Submit Application"}
         </button>
