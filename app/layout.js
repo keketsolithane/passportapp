@@ -1,6 +1,5 @@
-
 export const metadata = {
-  title: "Passport Services ",
+  title: "Passport Services",
   description: "Apply, renew, and track passport status.",
 };
 
@@ -12,10 +11,12 @@ import Footer from "../components/Footer";
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">
-         <Header />
+      <body className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
         <NavBar />
-        <main className="flex-1 container py-8">{children}</main>
+        <main className="flex-1 container mx-auto py-8 px-4">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>
