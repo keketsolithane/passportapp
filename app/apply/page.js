@@ -31,7 +31,6 @@ export default function Apply() {
   const [submitting, setSubmitting] = useState(false);
   const [refNum, setRefNum] = useState("");
   const sigCanvasRef = useRef(null);
-  const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -41,6 +40,13 @@ export default function Apply() {
     if (sigCanvasRef.current) {
       sigCanvasRef.current.clear();
     }
+  };
+
+  const generateUniqueFileName = (prefix, extension = "png") => {
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const idPart = form.idNumber ? form.idNumber.replace(/\s+/g, '_') : 'no-id';
+    return `${prefix}/${idPart}_${timestamp}_${randomString}.${extension}`;
   };
 
   const uploadSignature = async () => {
@@ -53,7 +59,9 @@ export default function Apply() {
       const dataURL = sigCanvasRef.current.toDataURL("image/png");
       const response = await fetch(dataURL);
       const blob = await response.blob();
-      const fileName = `signature_${form.idNumber || Date.now()}.png`;
+      
+      // Generate unique filename to avoid conflicts
+      const fileName = generateUniqueFileName("signatures", "png");
 
       const { error: uploadError } = await supabase.storage
         .from("passport-files")
@@ -64,6 +72,30 @@ export default function Apply() {
 
       if (uploadError) {
         console.error("Signature upload failed:", uploadError);
+        
+        // If file exists error, try with a new unique name
+        if (uploadError.message?.includes('already exists') || uploadError.message?.includes('resource already exists')) {
+          const retryFileName = generateUniqueFileName("signatures", "png");
+          const { error: retryError } = await supabase.storage
+            .from("passport-files")
+            .upload(retryFileName, blob, { 
+              cacheControl: "3600", 
+              upsert: false 
+            });
+            
+          if (retryError) {
+            console.error("Retry signature upload failed:", retryError);
+            alert("Failed to upload signature. Please try again.");
+            return null;
+          }
+          
+          const { data } = supabase.storage
+            .from("passport-files")
+            .getPublicUrl(retryFileName);
+            
+          return data.publicUrl;
+        }
+        
         alert("Failed to upload signature. Please try again.");
         return null;
       }
@@ -117,6 +149,9 @@ export default function Apply() {
 
     setSubmitting(true);
 
+    // Generate unique reference number
+    const uniqueRef = `LS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
     const applicationData = {
       full_name: form.fullName,
       email: form.email,
@@ -133,6 +168,8 @@ export default function Apply() {
       photo_url: photoUrl,
       docs_url: docsUrl,
       signature_url: signatureUrl,
+      reference: uniqueRef,
+      status: "Processing"
     };
 
     try {
@@ -141,10 +178,20 @@ export default function Apply() {
         .insert([applicationData])
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        
+        // Handle duplicate entry errors
+        if (error.code === '23505') { // PostgreSQL unique violation
+          alert("An application with these details already exists. Please check your information.");
+          return;
+        }
+        
+        throw error;
+      }
 
-      setRefNum(`LS-${data[0].id}`);
-      
+      setRefNum(uniqueRef);
+
       // Reset form
       setForm({
         fullName: "", email: "", dob: "", idNumber: "", nationality: "", birthPlace: "",
@@ -175,6 +222,7 @@ export default function Apply() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
         <div className="grid grid-cols-1 gap-6">
+          {/* Full Name */}
           <div>
             <label htmlFor="apply-fullName" className="block text-sm font-medium text-gray-700 mb-2">
               Full Name *
@@ -190,6 +238,7 @@ export default function Apply() {
             />
           </div>
 
+          {/* Email */}
           <div>
             <label htmlFor="apply-email" className="block text-sm font-medium text-gray-700 mb-2">
               Email Address *
@@ -205,6 +254,7 @@ export default function Apply() {
             />
           </div>
 
+          {/* Date of Birth */}
           <div>
             <label htmlFor="apply-dob" className="block text-sm font-medium text-gray-700 mb-2">
               Date of Birth *
@@ -220,6 +270,7 @@ export default function Apply() {
             />
           </div>
 
+          {/* ID Number */}
           <div>
             <label htmlFor="apply-idNumber" className="block text-sm font-medium text-gray-700 mb-2">
               National ID Number *
@@ -235,6 +286,7 @@ export default function Apply() {
             />
           </div>
 
+          {/* Nationality */}
           <div>
             <label htmlFor="apply-nationality" className="block text-sm font-medium text-gray-700 mb-2">
               Nationality *
@@ -250,6 +302,7 @@ export default function Apply() {
             />
           </div>
 
+          {/* Birth Place */}
           <div>
             <label htmlFor="apply-birthPlace" className="block text-sm font-medium text-gray-700 mb-2">
               Birth Place *
@@ -265,6 +318,7 @@ export default function Apply() {
             />
           </div>
 
+          {/* District */}
           <div>
             <label htmlFor="apply-district" className="block text-sm font-medium text-gray-700 mb-2">
               District *
@@ -284,6 +338,7 @@ export default function Apply() {
             </select>
           </div>
 
+          {/* Head Chief */}
           <div>
             <label htmlFor="apply-headChief" className="block text-sm font-medium text-gray-700 mb-2">
               Head Chief *
@@ -299,6 +354,7 @@ export default function Apply() {
             />
           </div>
 
+          {/* Passport Type */}
           <div>
             <label htmlFor="apply-passportType" className="block text-sm font-medium text-gray-700 mb-2">
               Passport Type
@@ -315,6 +371,7 @@ export default function Apply() {
             </select>
           </div>
 
+          {/* Sex */}
           <div>
             <label htmlFor="apply-sex" className="block text-sm font-medium text-gray-700 mb-2">
               Sex *
@@ -334,7 +391,7 @@ export default function Apply() {
           </div>
         </div>
 
-        {/* Guardian Information for Minors */}
+        {/* Guardian Information */}
         {age < 16 && (
           <div className="grid grid-cols-1 gap-6 border-t pt-6">
             <div>
@@ -431,7 +488,10 @@ export default function Apply() {
         {refNum && (
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-700 text-center">
-              Application submitted! Reference: {refNum}
+              Application submitted successfully! Your reference number is: <strong>{refNum}</strong>
+            </p>
+            <p className="text-green-600 text-center mt-2 text-sm">
+              Please save this reference number for future tracking.
             </p>
           </div>
         )}
