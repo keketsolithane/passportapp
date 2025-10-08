@@ -6,7 +6,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  output: 'standalone'
+  output: 'standalone',
+  // Resolve the multiple lockfile warning
+  outputFileTracingRoot: process.cwd()
 }
 
 module.exports = nextConfig
