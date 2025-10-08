@@ -23,12 +23,12 @@ export default function Renew() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError(null); // Clear errors when user types
+    setError(null);
   };
 
   const handleFileChange = (e) => {
     setPhotoFile(e.target.files[0]);
-    setError(null); // Clear errors when file is selected
+    setError(null);
   };
 
   async function handleSubmit(e) {
@@ -39,7 +39,6 @@ export default function Renew() {
       return;
     }
 
-    // Validate file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
     if (!validTypes.includes(photoFile.type)) {
       setError("Please upload a valid image file (JPEG, PNG, or GIF).");
@@ -52,57 +51,50 @@ export default function Renew() {
     try {
       const bucketName = "passport-files";
       const fileExt = photoFile.name.split(".").pop();
-      
-      // Create unique filename to avoid conflicts
       const timestamp = Date.now();
       const fileName = `renewals/passport_${form.passportNumber}_${timestamp}.${fileExt}`;
 
       console.log("Uploading file:", fileName);
 
-      // Upload photo to Supabase
       const { error: uploadError } = await supabase
         .storage
         .from(bucketName)
         .upload(fileName, photoFile, { 
           cacheControl: "3600", 
-          upsert: false // Changed to false to avoid CORB issues
+          upsert: false
         });
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
-        
-        // If file exists, create a new unique name
         if (uploadError.message.includes('already exists')) {
           const retryFileName = `renewals/passport_${form.passportNumber}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-          
           const { error: retryError } = await supabase
             .storage
             .from(bucketName)
-            .upload(retryFileName, photoFile, { 
-              cacheControl: "3600", 
-              upsert: false 
-            });
-            
+            .upload(retryFileName, photoFile, { cacheControl: "3600", upsert: false });
+
           if (retryError) throw retryError;
-          
-          // Use the retry file name for the rest of the process
-          const { data: urlData } = supabase
+
+          const { data: signedData, error: signedError } = await supabase
             .storage
             .from(bucketName)
-            .getPublicUrl(retryFileName);
+            .createSignedUrl(retryFileName, 60);
 
-          await saveRenewalApplication(urlData.publicUrl);
+          if (signedError) throw signedError;
+
+          await saveRenewalApplication(signedData.signedUrl);
         } else {
           throw uploadError;
         }
       } else {
-        // Get public URL
-        const { data: urlData } = supabase
+        const { data: signedData, error: signedError } = await supabase
           .storage
           .from(bucketName)
-          .getPublicUrl(fileName);
+          .createSignedUrl(fileName, 60);
 
-        await saveRenewalApplication(urlData.publicUrl);
+        if (signedError) throw signedError;
+
+        await saveRenewalApplication(signedData.signedUrl);
       }
 
     } catch (err) {
@@ -115,7 +107,6 @@ export default function Renew() {
 
   async function saveRenewalApplication(photoUrl) {
     try {
-      // Insert into renewals table
       const { data, error } = await supabase
         .from("renewals")
         .insert([{
@@ -132,13 +123,9 @@ export default function Renew() {
       if (error) throw error;
 
       setRef(data.reference);
-      
-      // Reset form
       setForm({ name: "", surname: "", passportNumber: "", district: "" });
       setPhotoFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
 
     } catch (err) {
       console.error("Database error:", err);
@@ -151,8 +138,7 @@ export default function Renew() {
       <h1 className="text-2xl font-semibold text-blue-700 mb-6 text-center">
         Renew Passport
       </h1>
-      
-      {/* Error Message */}
+
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-700 text-center">{error}</p>
@@ -160,7 +146,6 @@ export default function Renew() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-        {/* Name Field */}
         <div>
           <label htmlFor="renew-name" className="block text-sm font-medium text-gray-700 mb-2">
             Name *
@@ -180,7 +165,6 @@ export default function Renew() {
           <div id="name-help" className="sr-only">Enter your first name</div>
         </div>
 
-        {/* Surname Field */}
         <div>
           <label htmlFor="renew-surname" className="block text-sm font-medium text-gray-700 mb-2">
             Surname *
@@ -200,7 +184,6 @@ export default function Renew() {
           <div id="surname-help" className="sr-only">Enter your surname</div>
         </div>
 
-        {/* Passport Number Field */}
         <div>
           <label htmlFor="renew-passport" className="block text-sm font-medium text-gray-700 mb-2">
             Passport Number *
@@ -220,7 +203,6 @@ export default function Renew() {
           <div id="passport-help" className="sr-only">Enter your current passport number</div>
         </div>
 
-        {/* District Field */}
         <div>
           <label htmlFor="renew-district" className="block text-sm font-medium text-gray-700 mb-2">
             District *
@@ -243,23 +225,23 @@ export default function Renew() {
           <div id="district-help" className="sr-only">Select your district from the dropdown</div>
         </div>
 
-        {/* Photo Upload Field */}
+        {/* File input wrapped inside label */}
         <div>
           <label htmlFor="renew-photo" className="block text-sm font-medium text-gray-700 mb-2">
             Passport Photo *
+            <input
+              ref={fileInputRef}
+              id="renew-photo"
+              name="photoFile"
+              type="file"
+              accept="image/jpeg, image/jpg, image/png, image/gif"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mt-2"
+              onChange={handleFileChange}
+              required
+              aria-required="true"
+              aria-describedby="photo-help"
+            />
           </label>
-          <input
-            ref={fileInputRef}
-            id="renew-photo"
-            name="photoFile"
-            type="file"
-            accept="image/jpeg, image/jpg, image/png, image/gif"
-            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            onChange={handleFileChange}
-            required
-            aria-required="true"
-            aria-describedby="photo-help"
-          />
           <div id="photo-help" className="text-xs text-gray-500 mt-2">
             Upload a recent passport-sized photo (JPEG, PNG, or GIF)
           </div>
@@ -273,8 +255,8 @@ export default function Renew() {
           )}
         </div>
 
-        {/* Submit Button */}
         <button
+          id="renew-submit"
           type="submit"
           name="submit"
           disabled={submitting}
@@ -294,7 +276,6 @@ export default function Renew() {
           )}
         </button>
 
-        {/* Success Message */}
         {ref && (
           <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
             <div className="text-center">
